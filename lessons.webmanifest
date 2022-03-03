@@ -1,0 +1,21 @@
+{
+    "name": "Lessons PWA",
+    "short_name": "PWA",
+    "description": "Online Lessons Store",
+    "icons": [
+        {
+            "src": "img/lesson-icon-13.jpg",
+            "sizes": "512x512",
+            "type": "image/jpg"
+        },
+        {
+            "src": "img/lesson-icon-13-resize.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }
+
+    ],
+    "start_url": "index.html",
+    "display": "fullscreen",
+    "background_color": "#B12A34"
+}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" >
+    <link rel="manifest" href="lessons.webmanifest">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="lessons.js"></script>
+    
+    <title>Document</title>
+    <script>
+        if ('serviceWorker' in navigator){
+            navigator.serviceWorker.register('service-worker.js')
+        }
+    </script>
+</head>
+<body>
+    <div id="app">
+        <header id="mainHeader">
+                <h1 v-text="sitename" class="sitename"></h1>
+                
+                <button @click="showCheckout" v-if="cartItemCount>0" class="checkoutButton">
+                    {{cartItemCount}}
+                    <span class="fas fa-cart-plus"></span>
+                    Checkout
+                </button>
+                <button hidden v-else>
+                </button>
+            
+        </header>
+    <main>
+   
+
+    <div v-if="showProduct" class='container'>
+        <div class="search">
+            <h3>
+                Search: <input type="text" v-model="search" placeholder="Search classes">
+            </h3>
+            <h3>
+                Sort by:
+                <button @click="priceLowHigh">Price low to High</button>
+                <button @click="priceHighLow">Price High to Low</button>
+            </h3>
+        </div>
+        <div v-for="product in filteredLessons">
+            <div class="item">
+                <img v-bind:src="product.image" class="subject" width="135" height="150">
+                    <h3>{{product.subject}}</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> {{product.location}}</p>
+                    <p><i class="fas fa-money-bill"></i> £{{product.price}}/month</p>
+                    <p>Available spaces: {{product.spaces}}</p>
+                    <div class="btn-class">
+                        <button class="add" v-on:click="addToCart(product)" v-if="canAddToCart(product)">
+                            <span><i class="fas fa-cart-plus"></i></span>
+                            Add to cart
+                        </button>
+                        <button disabled="disabled" class="add" v-else>
+                            Add to Cart
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>
+        <div v-else class="check">
+            <div class="checkOut">
+                <h2>Checkout</h2>
+                <p>
+                    <strong>First name: </strong>
+                    <input v-model="order.firstName">
+                </p>
+                <p>
+                    <strong>Last name: </strong>
+                    <input v-model="order.lastName">
+                </p>
+                <p>
+                    <strong>Phone Number: </strong>
+                    <input v-model="order.phoneNumber">
+                </p>
+
+                <h3>Order information</h3>
+                <p>First name: {{order.firstName}}</p>
+                <p>First name: {{order.lastName}}</p>
+                <p>Phone number: {{order.phoneNumber}}</p>
+
+                <button @click="submitForm" v-if="canPlaceOrder">Place Order</button>
+                <button disabled v-else>Place Order</button>
+            </div>
+
+            <div class="orderList">
+                <h2>Order List</h2>
+                <div v-for="(cartItem, key) in cart">
+                    <p>{{cartItem}}
+                        <button @click ="removeFromCart(cartItem, key)">Remove</button>
+                    </p>
+                </div> 
+            </div>
+
+        </div>
+        
+
+    </main>
+    </div>
+
+
+    <script>
+
+let webstore = new Vue({
+    el: '#app',
+    data: {
+        sitename: "After School Club",
+        lessons: lessons,
+        order: {
+            firstName: '',
+            lastName: '',
+            phoneNumber: ''
+        },
+        cart: [],
+        search: '',
+        showProduct: true,
+    },
+    methods: {
+        addToCart(product){
+            product.spaces = product.spaces -1;
+            this.cart.push(product.subject);
+          
+        },
+        showCheckout(){
+            this.showProduct = this.showProduct ? false : true;
+        },
+        canAddToCart(product){
+            return product.availableInventory > this.cartCount(product.subject);
+        },
+        removeFromCart(subjectName, key){
+            this.lessons.forEach(product => {
+                if(product.subject == subjectName){
+                    product.spaces++;
+                    this.cart.splice(key, 1);
+                }
+            })
+        },
+        cartCount(id){
+            let count = 0;
+            for(let i=0; i<this.cart.length; i++){
+                if(this.cart[i] === id){
+                    count++;
+                }
+            }
+            return count;
+        },
+        submitForm(){
+            alert("Order has been placed");
+        },
+        priceLowHigh(){
+            this.lessons.sort((a, b) => a.price > b.price ? 1 : -1);
+        },
+        priceHighLow(){
+            this.lessons.sort((a,b) => a.price < b.price ? 1 : -1);
+        },
+    },
+    computed: {
+        cartItemCount(){
+            return this.cart.length || ' ';
+        },
+
+        filteredLessons(){
+            return this.lessons.filter((product) => {
+                return (product.subject.toLowerCase().match(this.search) || product.subject.match(this.search) || product.location.match(this.search) || product.location.toLowerCase().match(this.search));
+                
+            });
+        },
+        canPlaceOrder(){
+
+           
+            let regex = new RegExp(/^[a-zA-Z]+$/);
+           
+            if ((this.order.firstName && this.order.lastName && this.order.phoneNumber) && (regex.test(this.order.firstName) == true && regex.test(this.order.lastName) == true ) &&(!isNaN((this.order.phoneNumber)))) {
+                return true;
+                }
+            else{
+                return false;
+                }
+        },
+    }
+});
+
+
+    </script>
+
+   
+
+    
+
+</body>
+</html>
